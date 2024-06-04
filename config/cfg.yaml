@@ -1,0 +1,106 @@
+logging:
+  level: DEBUG
+  log_dir: log
+
+training:
+  no_cuda: False
+  save_dir: ./save
+  ckp_dir: checkpoints
+  batch_size: 20
+  num_workers: 4
+  max_iter: 27000
+  warm_up: 6440
+  weight_update_iter: 920
+  save_iter: 6888
+  weights_filename: ckp_epoch_
+  optimizer:
+    optim_method: sgd
+    lr: 0.01
+    momentum: 0.9
+    weight_decay: 0.0001
+    lr_decay_iter:
+      - 6888
+      - 9888
+    lr_decay: 0.1
+
+validation:
+  batch_size: 256
+  val_iter: 6888
+  start_val_iter: 6888
+  optimal_weights_filename: model_best_epoch_
+
+testing:
+  batch_size: 256
+  trained_model_path: ./save/checkpoints/model_best_epoch_xx.pth.tar
+  extracted_features_path: ./save/ext_feat.pth
+  result_path: ./save/results.txt
+  test_lists:
+    - match_g_v2f_2_test
+    - match_g_f2v_2_test
+    - match_v2f_2_test
+    - match_f2v_2_test
+    - verify_g_v2f_test
+    - verify_g_f2v_test
+    - verify_v2f_test
+    - verify_f2v_test
+    - reterival_v2f_test
+    - reterival_f2v_test
+
+models:
+  model_wrapper: Aasm
+  Arch:
+    vNet:
+      model_wrapper: vSubNet
+      pretrained:
+        model: IR_152
+        weight: models/pretrained_weight/Backbone_IR_152_Epoch_112_Batch_2547328_Time_2019-07-13-02-59_checkpoint.pth
+      freeze: False
+      output_channel: 128
+      num_classes: 924
+    aNet:
+      model_wrapper: aSubNet
+      pretrained:
+        model: ResNetSE34
+        weight: models/pretrained_weight/baseline_lite_ap.model
+      freeze: False
+      output_channel: 128
+      num_classes: 924
+    eqm:
+      model_wrapper: eqm
+      output_channel: 128
+      num_classes: 924
+      temp: 0.5
+      m_u: 0.15
+      m_l: 0.2
+      H: True
+
+  normal_layer: True
+  normal_mean:
+    - 127.5
+    - 127.5
+    - 127.5
+  normal_std:
+    - 127.5
+    - 127.5
+    - 127.5
+
+  weighted_enabled: True
+  regauge_iter: 6888
+
+dataset:
+  train_csv: vox1_train
+  val_csv: vox1_val
+  test_csv: vox1_test
+  v2f_triplet_val: match_v2f_2_val
+  v2f_triplet_test: match_v2f_2_test
+  image_data_dir: /home/user/Datasets/VGG_ALL_FRONTAL
+  audio_data_dir: /home/user/Datasets/voxceleb1/audio
+  list_dir: ./data/gen_list
+  resize:
+    - 112
+    - 112
+  input_size:
+    - 112
+    - 112
+
+
